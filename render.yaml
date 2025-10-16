@@ -4,5 +4,5 @@ services:
     env: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn myproject.wsgi:application"
+    startCommand: "gunicorn qazaq_it_project.wsgi:application"
     pythonVersion: 3.10
