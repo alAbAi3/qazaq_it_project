@@ -5,4 +5,4 @@ services:
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn myproject.wsgi:application"
-    pythonVersion: 3.12.3
+    pythonVersion: python-3.10.14
