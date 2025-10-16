@@ -1,0 +1,321 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QazaqIT - IT курстар платформасы{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        /* --- 1. Дизайн-токендер (Design Tokens) --- */
+        :root, [data-bs-theme="light"] {
+            /* Color Palette */
+            --color-primary: #FFB81C;
+            --color-primary-hover: #FFA700;
+            --color-text: #212529;
+            --color-text-muted: #6c757d;
+            --color-surface-1: #ffffff; /* Негізгі фон */
+            --color-surface-2: #f8f9fa; /* Екінші деңгейлі фон */
+            --color-border: #dee2e6;
+            --color-black-pure: #000;
+            --color-white-pure: #fff;
+
+            /* Typography */
+            --font-family-base: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem); /* Fluid typography */
+            --font-size-h1: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+            --font-size-h2: clamp(2rem, 1.5rem + 2vw, 3rem);
+
+            /* Sizing & Spacing */
+            --border-radius-sm: 0.5rem;
+            --border-radius-md: 0.75rem;
+            
+            /* Effects & Transitions */
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --transition-speed-fast: 0.2s;
+            --transition-speed-normal: 0.3s;
+            --transition-easing: cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-bs-theme="dark"] {
+            --color-primary: #FFC107;
+            --color-primary-hover: #FFD54F;
+            --color-text: #e0e0e0;
+            --color-text-muted: #a0a0a0;
+            --color-surface-1: #121212;
+            --color-surface-2: #1e1e1e;
+            --color-border: #3a3a3a;
+
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- 2. Глобалды стильдер және базалық орнатулар --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        :root {
+            color-scheme: light dark; /* Браузерге қолдау көрсетілетін схемаларды хабарлау */
+        }
+        
+        body {
+            background-color: var(--color-surface-1);
+            color: var(--color-text);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            overflow-x: hidden; /* Көлденең жылжуды болдырмау */
+            position: relative;
+        }
+        
+        /* Нәзік "Аврора" фон эффектісі */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20vh;
+            right: -20vw;
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(255, 184, 28, 0.15), transparent 70%);
+            filter: blur(100px);
+            z-index: -1;
+            animation: aurora-glow 25s linear infinite;
+            will-change: transform;
+        }
+
+        h1, h2, h3 { font-weight: 700; }
+        h1 { font-size: var(--font-size-h1); }
+        h2 { font-size: var(--font-size-h2); }
+
+        /* --- 3. Қол жетімділік (Accessibility) & Анимация --- */
+        /* Фокустың анық стилі */
+        :focus-visible {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 3px;
+            box-shadow: none;
+            transition: outline var(--transition-speed-fast) ease;
+        }
+        
+        /* Анимацияны азайту */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes aurora-glow {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        .content-wrapper {
+            animation: fadeIn 0.8s var(--transition-easing) forwards;
+        }
+        
+        /* Элементтерді бірінен соң бірі шығаратын анимация */
+        .stagger-in > * {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s var(--transition-easing) forwards;
+        }
+
+        /* JS-сіз-ақ кезекпен шығару үшін */
+        .stagger-in > *:nth-child(1) { animation-delay: 0.1s; }
+        .stagger-in > *:nth-child(2) { animation-delay: 0.2s; }
+        .stagger-in > *:nth-child(3) { animation-delay: 0.3s; }
+        .stagger-in > *:nth-child(4) { animation-delay: 0.4s; }
+        /* ... қажетінше жалғастыруға болады */
+        
+        /* --- 4. Компоненттер --- */
+        /* -- Navbar (Glassmorphism) -- */
+        .main-navbar {
+            background-color: rgba(var(--color-surface-1-rgb, 255, 255, 255), 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--color-border);
+            padding: 0.75rem 0;
+            transition: background-color var(--transition-speed-normal) var(--transition-easing);
+        }
+        [data-bs-theme="dark"] .main-navbar {
+            background-color: rgba(var(--color-surface-1-rgb, 18, 18, 18), 0.7);
+        }
+        .main-navbar .navbar-brand .bi { color: var(--color-primary); }
+
+        .main-navbar .nav-link {
+            color: var(--color-text-muted);
+            font-weight: 500;
+            position: relative;
+            will-change: color;
+        }
+        .main-navbar .nav-link:hover, .main-navbar .nav-link.active {
+            color: var(--color-text);
+        }
+        .main-navbar .nav-link::after {
+            content: '';
+            position: absolute; bottom: -4px; left: 0;
+            width: 100%; height: 2px;
+            background-color: var(--color-primary);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform var(--transition-speed-normal) var(--transition-easing);
+        }
+        .main-navbar .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        /* -- Buttons -- */
+        .btn {
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            padding: 0.7rem 1.4rem;
+            will-change: transform, box-shadow;
+            transition: transform var(--transition-speed-fast) var(--transition-easing), box-shadow var(--transition-speed-fast) var(--transition-easing);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-text);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+            color: var(--color-text);
+        }
+
+        /* -- User Avatar & Offcanvas -- */
+        .user-avatar-btn {
+            cursor: pointer;
+            border: 2px solid var(--color-border);
+            transition-property: transform, border-color, box-shadow;
+            transition-duration: var(--transition-speed-normal);
+            transition-timing-function: var(--transition-easing);
+        }
+        .user-avatar-btn:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 20px rgba(var(--color-primary-rgb, 255, 184, 28), 0.5);
+        }
+        .offcanvas {
+            background-color: var(--color-surface-2);
+            border-left: 1px solid var(--color-border);
+        }
+        .offcanvas-body .list-group-item {
+            color: var(--color-text-muted);
+            border-left: 4px solid transparent;
+        }
+        .offcanvas-body .list-group-item:hover {
+            background-color: var(--color-surface-1);
+            color: var(--color-text);
+            border-left-color: var(--color-primary);
+            transform: translateX(5px);
+        }
+        .offcanvas-body .list-group-item i { color: var(--color-primary); }
+        
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg main-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="bi bi-code-slash text-primary"></i> QazaqIT
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'course_list' %}active{% endif %}" href="{% url 'course_list' %}">Курстар</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active{% endif %}" href="{% url 'schedule' %}">Кесте</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'job_list' %}active{% endif %}" href="{% url 'job_list' %}">Жұмыс</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" width="40" height="40" class="rounded-circle user-avatar-btn" data-bs-toggle="offcanvas" data-bs-target="#userOffcanvas" aria-controls="userOffcanvas">
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary me-2">Кіру</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary">Тіркелу</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4 py-md-5 flex-grow-1">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% if user.is_authenticated %}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="userOffcanvas" aria-labelledby="userOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="userOffcanvasLabel">
+                <img src="{{ user.profile.avatar.url }}" alt="Avatar" width="32" height="32" class="rounded-circle me-2">
+                {{ user.username }}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="list-group list-group-flush">
+                {% if user.is_staff %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'dashboard' %}"><i class="bi bi-bar-chart-line-fill"></i>Басқару панелі</a>
+                {% endif %}
+                <a class="list-group-item list-group-item-action" href="{% url 'my_courses' %}"><i class="bi bi-play-circle-fill"></i>Менің курстарым</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'my_favorites' %}"><i class="bi bi-heart-fill"></i>Сүйікті курстарым</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'profile' %}"><i class="bi bi-person-fill-gear"></i>Профильді баптау</a>
+            </div>
+            <hr class="my-2">
+            <div class="p-3">
+                 <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-box-arrow-right me-2"></i>Шығу</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

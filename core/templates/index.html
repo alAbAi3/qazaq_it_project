@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}QazaqIT - Басты бет{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+    <div class="animated-bg">
+        <ul>
+            <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+        </ul>
+    </div>
+    <div class="container hero-content">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto text-center">
+                <h1 class="hero-title display-4 fw-bold">QazaqIT-ке қош келдіңіз!</h1>
+                <p class="hero-subtitle fs-4">Заманауи IT мамандықтарын бізбен бірге үйреніңіз. Бағдарламалау, дизайн, маркетинг және тағы басқа курстарды табыңыз.</p>
+                <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg mt-4">Барлық курстарды көру</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div class="container py-5">
+    <h2 class="text-center mb-5">Соңғы курстар</h2>
+    <div class="row g-4 stagger-in">
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6">
+            <div class="course-card h-100">
+                <div class="course-card-img-wrapper">
+                    {% if course.image %}
+                        <img src="{{ course.image.url }}" class="course-card-img" alt="{{ course.title }}">
+                    {% endif %}
+                </div>
+                <div class="course-card-body d-flex flex-column">
+                    <h5 class="course-card-title">{{ course.title }}</h5>
+                    <p class="course-card-text">{{ course.description|truncatewords:15 }}</p>
+                    <div class="mt-auto">
+                         <a href="{% url 'course_detail' course.pk %}" class="btn btn-outline-primary w-100">Толығырақ</a>
+                    </div>
+                </div>
+                <div class="course-card-footer">
+                    <strong class="fs-5">{{ course.price }} ₸</strong>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-center text-muted">Әзірге курстар жоқ. Жақында жаңа курстар қосылады!</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="partners-section text-center py-5">
+    <div class="container">
+        <h2 class="mb-5">Бізге сенім білдірген компаниялар</h2>
+    </div>
+    <div class="partners-marquee">
+        <div class="partners-track">
+            {% for partner in partners %}
+                <div class="partner-logo">
+                    <a href="{{ partner.url }}" target="_blank">
+                        <img src="{{ partner.logo.url }}" alt="{{ partner.name }}">
+                    </a>
+                </div>
+            {% endfor %}
+            {% for partner in partners %}
+                <div class="partner-logo">
+                    <a href="{{ partner.url }}" target="_blank">
+                        <img src="{{ partner.logo.url }}" alt="{{ partner.name }}">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<style>
+/* --- Senior-Level Homepage Content Styles --- */
+
+/* -- 1. Hero Section Styles (from previous step, included for completeness) -- */
+.hero-section {
+    position: relative;
+    padding: clamp(4rem, 10vw, 8rem) 0;
+    background-color: var(--color-surface-2);
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-border);
+}
+.hero-content { position: relative; z-index: 2; }
+.hero-title { font-size: var(--font-size-h1); font-weight: 700; color: var(--color-text); text-shadow: 0 2px 20px rgba(0,0,0,0.1); }
+.hero-subtitle { font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem); color: var(--color-text-muted); margin: 1.5rem auto 0; max-width: 650px; }
+.animated-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+.animated-bg ul { list-style: none; padding: 0; margin: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.animated-bg li { position: absolute; display: block; background-color: rgba(var(--color-primary-rgb, 255, 184, 28), 0.15); border-radius: var(--border-radius-sm); animation: animate-shape 25s linear infinite; bottom: -150px; will-change: transform, opacity; }
+.animated-bg li:nth-child(1){ left: 25%; width: 80px; height: 80px; animation-delay: 0s; } .animated-bg li:nth-child(2){ left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; } .animated-bg li:nth-child(3){ left: 70%; width: 20px; height: 20px; animation-delay: 4s; } .animated-bg li:nth-child(4){ left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; border-radius: 50%;} .animated-bg li:nth-child(5){ left: 65%; width: 20px; height: 20px; animation-delay: 0s; } .animated-bg li:nth-child(6){ left: 75%; width: 110px; height: 110px; animation-delay: 3s; border-radius: 50%; } .animated-bg li:nth-child(7){ left: 35%; width: 150px; height: 150px; animation-delay: 7s; } .animated-bg li:nth-child(8){ left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; } .animated-bg li:nth-child(9){ left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; border-radius: 50%;} .animated-bg li:nth-child(10){ left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
+@keyframes animate-shape { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; } }
+
+/* -- 2. Course Card Styles -- */
+.course-card {
+    background-color: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-speed-normal) var(--transition-easing),
+                box-shadow var(--transition-speed-normal) var(--transition-easing);
+}
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+}
+.course-card-img-wrapper {
+    overflow: hidden;
+    height: 200px;
+}
+.course-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s var(--transition-easing);
+}
+.course-card:hover .course-card-img {
+    transform: scale(1.05);
+}
+.course-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+.course-card-title {
+    color: var(--color-text);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+.course-card-text {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+.course-card-footer {
+    padding: 1rem 1.5rem;
+    background-color: var(--color-surface-2);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-primary);
+    text-align: right;
+}
+.course-card .btn-outline-primary {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+.course-card .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text);
+}
+
+
+/* -- 3. Partners Marquee Styles -- */
+.partners-section {
+    background-color: var(--color-surface-2);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+.partners-marquee {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    /* Градиенттер арқылы шеттерін жұмсарту */
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+}
+.partners-track {
+    display: flex;
+    width: fit-content;
+    animation: marquee-scroll 40s linear infinite;
+    will-change: transform;
+}
+.partners-marquee:hover .partners-track {
+    animation-play-state: paused; /* Курсорды апарғанда анимацияны тоқтату */
+}
+.partner-logo {
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+}
+.partner-logo img {
+    max-height: 50px;
+    width: auto;
+    filter: grayscale(100%) opacity(0.7);
+    transition: filter var(--transition-speed-normal) var(--transition-easing),
+                opacity var(--transition-speed-normal) var(--transition-easing);
+}
+.partner-logo:hover img {
+    filter: grayscale(0%) opacity(1);
+}
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); } /* -50%, себебі логотиптер екі рет қайталанады */
+}
+
+/* Қол жетімділік: Анимацияны азайту */
+@media (prefers-reduced-motion: reduce) {
+    .animated-bg li,
+    .partners-track {
+        animation: none;
+    }
+    .course-card:hover {
+        transform: none;
+    }
+    .course-card:hover .course-card-img {
+        transform: none;
+    }
+}
+</style>
+
+{% endblock %}

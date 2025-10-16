@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .course-info-card {
+        position: sticky;
+        top: 100px;
+    }
+    .lesson-accordion .accordion-button:not(.collapsed) {
+        background-color: rgba(236, 202, 106, 0.1); /* gold-accent түсімен үйлесімді */
+        color: var(--dark-space);
+        box-shadow: none;
+    }
+</style>
+
+<div class="row g-5">
+    <div class="col-lg-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'course_list' %}">Курстар</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold mb-3">{{ course.title }}</h1>
+        <p class="lead text-muted">{{ course.description }}</p>
+        <hr class="my-5">
+        <h2 class="mb-4">Курс бағдарламасы</h2>
+        <div class="accordion lesson-accordion" id="lessonsAccordion">
+            {% for lesson in lessons %}
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ lesson.pk }}">
+                        <i class="bi bi-play-circle-fill me-2" style="color: var(--gold-accent);"></i>
+                        <a href="{% url 'lesson_detail' course.pk lesson.pk %}" class="text-decoration-none text-dark flex-grow-1">
+                            {{ lesson.order }}. {{ lesson.title }}
+                        </a>
+                    </button>
+                </h2>
+                <div id="collapse{{ lesson.pk }}" class="accordion-collapse collapse" data-bs-parent="#lessonsAccordion">
+                    <div class="accordion-body">
+                        {% if lesson.content %}
+                            <div class="small">{{ lesson.content|striptags|truncatewords:30 }}</div>
+                        {% else %}
+                            <p class="small text-muted">Бұл сабақтың қысқаша сипаттамасы жоқ.</p>
+                        {% endif %}
+                        <a href="{% url 'lesson_detail' course.pk lesson.pk %}" class="btn btn-outline-primary btn-sm mt-3">Сабақты бастау →</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <p>Бұл курсқа әлі сабақтар қосылмаған.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card course-info-card">
+            {% if course.image %}
+                <img src="{{ course.image.url }}" class="card-img-top" alt="{{ course.title }}">
+            {% endif %}
+            <div class="card-body">
+                {% if not is_enrolled %}
+                    <h3 class="card-title mb-3">{{ course.price }} ₸</h3>
+                {% endif %}
+{% if user.is_authenticated %}
+    {% if is_enrolled %}
+        <a href="#" class="btn btn-success btn-lg w-100 mb-2">Курсты жалғастыру</a>
+    {% else %}
+        <a href="{% url 'checkout' course.pk %}" class="btn btn-primary btn-lg w-100 mb-2">Курсты сатып алу</a>
+    {% endif %}
+
+    {% if is_favorite %}
+        <a href="{% url 'toggle_favorite' course.pk %}" class="btn btn-danger w-100">
+            <i class="bi bi-heart-fill"></i> Сүйіктіден алу
+        </a>
+    {% else %}
+        <a href="{% url 'toggle_favorite' course.pk %}" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-heart"></i> Сүйіктіге қосу
+        </a>
+    {% endif %}
+{% else %}
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100 mb-2">Сатып алу үшін кіріңіз</a>
+{% endif %}
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-2"><i class="bi bi-bar-chart-fill me-2"></i> <strong>{{ lessons.count }}</strong> сабақ</li>
+                    <li class="mb-2"><i class="bi bi-clock-fill me-2"></i> Жалпы ұзақтығы: <strong>~5 сағат</strong></li>
+                    <li class="mb-2"><i class="bi bi-patch-check-fill me-2"></i> Соңында сертификат беріледі</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

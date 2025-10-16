@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Менің профилім{% endblock %}
+
+{% block content %}
+<style>
+    /* Форма өрістеріне арналған стильдер */
+    .form-control-custom {
+        border-radius: 8px; border: 2px solid var(--card-border); padding: 0.8rem 1rem;
+        background-color: var(--light-bg); transition: all 0.3s ease; /* all animation */
+    }
+    .form-control-custom:focus {
+        border-color: var(--gold-accent); background-color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(236, 202, 106, 0.25); outline: none;
+    }
+    /* Профиль басының аватар стилі */
+    .profile-header-avatar {
+        width: 100px; height: 100px; object-fit: cover;
+        border: 4px solid var(--gold-accent); /* Негізгі түспен жиектеу */
+        box-shadow: 0 0 0 6px rgba(236, 202, 106, 0.2); /* жұмсақ көлеңке */
+        transition: transform 0.3s ease-in-out; /* үлкейту анимациясы */
+    }
+    .profile-header-avatar:hover {
+        transform: scale(1.05); /* Үстіне барғанда сәл үлкейеді */
+    }
+
+    /* Аватар жүктеуге арналған жасырын input */
+    .avatar-form input[type="file"] { display: none; }
+    .avatar-form .btn-outline-primary {
+        transition: all 0.3s ease; /* батырма анимациясы */
+    }
+    .avatar-form .btn-outline-primary:hover {
+        background-color: var(--gold-accent);
+        color: var(--dark-space);
+    }
+
+    /* Табтардың стилі */
+    .nav-tabs { border-bottom: 2px solid var(--card-border); }
+    .nav-tabs .nav-link {
+        color: var(--muted-gray);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+        margin-right: 0.5rem;
+        padding: 0.75rem 1.25rem;
+    }
+    .nav-tabs .nav-link:hover {
+        color: var(--primary-color);
+        border-color: var(--card-border) var(--card-border) var(--primary-color);
+    }
+    .nav-tabs .nav-link.active {
+        color: var(--dark-space); font-weight: 600;
+        background-color: var(--body-bg); /* фон түсі */
+        border-color: var(--card-border) var(--card-border) var(--body-bg);
+        position: relative;
+        top: 1px; /* төменге жылжыту */
+    }
+    .tab-content {
+        background-color: var(--body-bg);
+        border: 1px solid var(--card-border);
+        border-top: none; /* Табтармен біріктіру үшін */
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    /* Тізім топтарындағы курстарға анимация */
+    .list-group-item {
+        transition: all 0.3s ease;
+        border-left: 5px solid transparent; /* Соңындағы сызық */
+    }
+    .list-group-item:hover {
+        transform: translateX(5px); /* Оңға жылжыту */
+        background-color: var(--light-bg);
+        border-left-color: var(--gold-accent); /* Түсін өзгерту */
+    }
+
+    /* Жалпы беттің кіру анимациясы */
+    @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .content-wrapper { /* base.html-дағы content-wrapper-ге қолданылады */
+        animation: fadeInScale 0.5s ease-out;
+    }
+
+</style>
+
+<div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+    <img class="rounded-circle profile-header-avatar me-4" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}'s Avatar">
+    <div>
+        <h1 class="h2 mb-0">{{ user.username }}</h1>
+        <p class="text-muted mb-0">{{ user.email }}</p>
+    </div>
+</div>
+
+<ul class="nav nav-tabs" id="profileTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses-pane" type="button" role="tab" aria-controls="courses-pane" aria-selected="true">
+            <i class="bi bi-book me-2"></i> Менің курстарым
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-pane" type="button" role="tab" aria-controls="edit-pane" aria-selected="false">
+            <i class="bi bi-person-fill me-2"></i> Профильді жаңарту
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="profileTabContent"> {# pt-4 алынып тасталды, енді padding таб-контенттің өзінде #}
+    <div class="tab-pane fade show active" id="courses-pane" role="tabpanel" aria-labelledby="courses-tab">
+        <h3 class="mb-4">Сатып алынған курстар</h3>
+        {% if purchased_courses %}
+            <div class="list-group">
+                {% for course in purchased_courses %}
+                <a href="{% url 'course_detail' course.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    {{ course.title }}
+                    <span class="badge bg-success rounded-pill">Сатып алынған</span>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-x-circle fs-1 text-muted mb-3"></i>
+                <h4 class="mb-2">Сіз әлі ешқандай курс сатып алмадыңыз.</h4>
+                <p class="text-muted">Жаңа білімге ұмтылыңыз\! Біздің курстарымызды қарап шығыңыз.</p>
+                <a href="{% url 'course_list' %}" class="btn btn-primary mt-3">Барлық курстар</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="edit-pane" role="tabpanel" aria-labelledby="edit-tab">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ u_form.username.id_for_label }}" class="form-label">Пайдаланушы аты</label>
+                <input type="text" name="{{ u_form.username.name }}" value="{{ u_form.username.value|default:'' }}" id="{{ u_form.username.id_for_label }}" class="form-control form-control-custom">
+            </div>
+            <div class="mb-3">
+                <label for="{{ u_form.email.id_for_label }}" class="form-label">Email пошта</label>
+                <input type="email" name="{{ u_form.email.name }}" value="{{ u_form.email.value|default:'' }}" id="{{ u_form.email.id_for_label }}" class="form-control form-control-custom">
+            </div>
+            <hr class="my-4">
+            <div class="mb-3">
+                <label for="{{ p_form.bio.id_for_label }}" class="form-label">Өзіңіз туралы қысқаша</label>
+                <textarea name="{{ p_form.bio.name }}" id="{{ p_form.bio.id_for_label }}" class="form-control form-control-custom" rows="4">{{ p_form.bio.value|default:'' }}</textarea>
+            </div>
+            <div class="mb-3 avatar-form">
+                <label class="form-label">Аватарды өзгерту</label>
+                <div>
+                    {{ p_form.avatar }} 
+                    <label for="{{ p_form.avatar.id_for_label }}" class="btn btn-outline-primary">
+                        <i class="bi bi-upload"></i> Сурет таңдау
+                    </label>
+                    <span id="file-name-display" class="ms-3 text-muted"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-primary" type="submit">Сақтау</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('{{ p_form.avatar.id_for_label }}');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    if (fileInput) {
+        // Бастапқыда файл таңдалған болса, оның атын көрсету
+        if (fileInput.files && fileInput.files.length > 0) {
+             fileNameDisplay.textContent = fileInput.files[0].name;
+        }
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        });
+    }
+</script>
+{% endblock %}

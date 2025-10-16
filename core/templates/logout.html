@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Шығу{% endblock %}
+{% block content %}
+    <div class="text-center">
+        <h2>Сіз жүйеден сәтті шықтыңыз.</h2>
+        <p>QazaqIT платформасына қайта оралғаныңызды күтеміз!</p>
+        <a href="{% url 'login' %}" class="btn btn-primary">Қайта кіру</a>
+    </div>
+{% endblock %}

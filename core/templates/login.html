@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Кіру{% endblock %}
+
+{% block content %}
+<style>
+    /* Форма өрістеріне арналған жеке стильдер */
+    .form-control-custom {
+        border-radius: 8px;
+        border: 2px solid var(--card-border);
+        padding: 0.8rem 1rem;
+        background-color: var(--light-bg);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-control-custom:focus {
+        border-color: var(--gold-accent);
+        background-color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(236, 202, 106, 0.25);
+        outline: none;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-8">
+        <div class="card p-4 p-md-5 border-0">
+            <div class="text-center mb-4">
+                <a class="navbar-brand text-primary" style="font-size: 2rem; color: var(--dark-space) !important;" href="{% url 'index' %}">
+                    <i class="bi bi-code-slash" style="color: var(--gold-accent) !important;"></i> QazaqIT
+                </a>
+                <h1 class="h3 mb-3 fw-normal mt-3">Жүйеге кіру</h1>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">Пайдаланушы аты</label>
+                    <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control form-control-custom" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">Құпиясөз</label>
+                    <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control form-control-custom" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mt-3 py-2">Кіру</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">Аккаунтыңыз жоқ па? <a href="{% url 'register' %}">Тіркелу</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

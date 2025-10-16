@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Сатып алу сәтті аяқталды{% endblock %}
+
+{% block content %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0.5); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out forwards;
+    }
+
+    .scale-in {
+        animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    }
+</style>
+
+<div class="container text-center">
+    <div class="py-5">
+        <div class="scale-in">
+            <i class="fas fa-check-circle fa-5x text-success"></i>
+        </div>
+        <h1 class="mt-4 fade-in" style="animation-delay: 0.2s;">Рахмет!</h1>
+        <p class="lead fade-in" style="animation-delay: 0.3s;">Сіз <strong>{{ course.title }}</strong> курсын сәтті сатып алдыңыз.</p>
+        <hr class="fade-in" style="animation-delay: 0.4s;">
+        <p class="fade-in" style="animation-delay: 0.5s;">Енді сіз курс сабақтарын көре аласыз. Сәттілік!</p>
+        <div class="mt-4 fade-in" style="animation-delay: 0.6s;">
+            <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary btn-lg">Курсқа өту</a>
+            <a href="{% url 'my_courses' %}" class="btn btn-secondary btn-lg">Менің курстарым</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+    <div class="row">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'job_list' %}">Жұмыстар</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ job.title }}</li>
+                </ol>
+            </nav>
+            <div class="job-header">
+                <h1 class="display-6 fw-bold">{{ job.title }}</h1>
+                <h4 class="text-muted">{{ job.company }}</h4>
+                <div class="job-meta d-flex flex-wrap my-3 text-muted">
+                    <span><i class="bi bi-geo-alt-fill"></i> {{ job.location }}</span>
+                    <span><i class="bi bi-briefcase-fill"></i> {{ job.job_type }}</span>
+                    <span><i class="bi bi-clock-fill"></i> {{ job.published_at|date:"d F Y" }}</span>
+                </div>
+            </div>
+            <hr>
+            <div class="job-description mt-4">
+                <h5 class="mb-3">Жұмыс сипаттамасы</h5>
+                {{ job.description|linebreaks }}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="company-card sticky-top">
+                <div class="card-body text-center">
+                    <img src="https://via.placeholder.com/150x150.png?text={{ job.company|slice:':1' }}" class="rounded-circle mb-3" width="100" height="100" alt="{{ job.company }} logo">
+                    <h5 class="card-title">{{ job.company }}</h5>
+                    <p class="card-text text-muted">IT-Компания</p>
+                    <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#applicationModal">
+                        Өтініш білдіру
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applicationModalLabel">{{ job.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'job_detail' job.pk %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ field.errors.as_text }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary w-100">Жіберу</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Senior-level Job Detail Page Styles */
+.breadcrumb-item a {
+    text-decoration: none;
+    color: var(--color-primary);
+}
+.job-meta span {
+    margin-right: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+}
+.job-meta span i {
+    color: var(--color-primary);
+    margin-right: 0.5rem;
+}
+.company-card {
+    top: 100px; /* Navbar биіктігіне байланысты реттеуге болады */
+    background-color: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+.modal-content {
+    background-color: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+}
+.modal-header {
+    border-bottom: 1px solid var(--color-border);
+}
+</style>
+
+{% endblock %}

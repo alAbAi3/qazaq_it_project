@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Басқару панелі{% endblock %}
+
+{% block content %}
+<style>
+    .stat-card {
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        background-color: #fff;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,.1);
+    }
+    .stat-card .stat-icon {
+        font-size: 2.5rem;
+        padding: 1rem;
+        border-radius: 50%;
+        color: #fff;
+    }
+    .stat-card .stat-number {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--dark-space);
+    }
+</style>
+
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Басқару панелі</h1>
+    <p class="fs-5 text-muted">Сайт статистикасы мен аналитикасы</p>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon me-3" style="background-color: var(--gold-accent);"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <p class="mb-0 text-muted">Барлық пайдаланушы</p>
+                    <p class="stat-number mb-0">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon me-3" style="background-color: var(--coral-accent);"><i class="bi bi-book-half"></i></div>
+                <div>
+                    <p class="mb-0 text-muted">Барлық курс</p>
+                    <p class="stat-number mb-0">{{ total_courses }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon me-3 bg-success"><i class="bi bi-cart-check-fill"></i></div>
+                <div>
+                    <p class="mb-0 text-muted">Барлық сатылым</p>
+                    <p class="stat-number mb-0">{{ total_enrollments }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon me-3 bg-info"><i class="bi bi-briefcase-fill"></i></div>
+                <div>
+                    <p class="mb-0 text-muted">Барлық жұмыс</p>
+                    <p class="stat-number mb-0">{{ total_jobs }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 p-4 h-100">
+            <h4 class="mb-3">Соңғы 30 күндегі тіркелулер</h4>
+            <canvas id="userRegistrationsChart"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 p-4 h-100">
+            <h4 class="mb-3">Ең көп қаралған курстар</h4>
+            <canvas id="courseViewsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 p-4">
+            <h4 class="mb-3">Соңғы тіркелген 5 пайдаланушы</h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Пайдаланушы аты</th>
+                            <th>Email</th>
+                            <th>Тіркелген күні</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in recent_users %}
+                        <tr>
+                            <td><img src="{{ u.profile.avatar.url }}" width="32" height="32" class="rounded-circle me-2"> {{ u.username }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.date_joined|date:"d F Y, H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Django-дан келген деректер
+    const courseLabels = JSON.parse('{{ course_labels|escapejs }}');
+    const courseViewsData = JSON.parse('{{ course_views_data|escapejs }}');
+    const regLabels = JSON.parse('{{ reg_labels|escapejs }}');
+    const regData = JSON.parse('{{ reg_data|escapejs }}');
+
+    // 1-графикті құру: Курстар (Енді 'doughnut' типінде)
+    const ctxCourses = document.getElementById('courseViewsChart').getContext('2d');
+    new Chart(ctxCourses, {
+        type: 'doughnut',
+        data: {
+            labels: courseLabels,
+            datasets: [{
+                label: 'Қаралым саны',
+                data: courseViewsData,
+                backgroundColor: ['rgba(236, 202, 106, 0.8)', 'rgba(239, 79, 110, 0.8)', 'rgba(23, 162, 184, 0.8)', 'rgba(40, 167, 69, 0.8)', 'rgba(108, 117, 125, 0.8)'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+    });
+
+    // 2-графикті құру: Тіркелулер (Градиентпен)
+    const ctxRegistrations = document.getElementById('userRegistrationsChart').getContext('2d');
+    const gradient = ctxRegistrations.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(239, 79, 110, 0.5)'); // --coral-accent
+    gradient.addColorStop(1, 'rgba(239, 79, 110, 0)');
+
+    new Chart(ctxRegistrations, {
+        type: 'line',
+        data: {
+            labels: regLabels,
+            datasets: [{
+                label: 'Жаңа пайдаланушылар',
+                data: regData,
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: 'rgba(239, 79, 110, 1)',
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(239, 79, 110, 1)'
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } },
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}

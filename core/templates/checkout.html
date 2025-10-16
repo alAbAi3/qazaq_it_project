@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Төлем беті{% endblock %}
+
+{% block content %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out forwards;
+    }
+
+    .payment-method-box {
+        border: 1px solid #ddd;
+        border-radius: .25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    .payment-method-box:hover {
+        background-color: #f7f7f7;
+        transform: translateY(-2px);
+    }
+    .payment-method-box.selected {
+        border-color: var(--gold-accent);
+        box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25);
+    }
+    #kaspi-qr-code {
+        display: none;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    #kaspi-qr-code img {
+        max-width: 250px;
+        height: auto;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(218, 165, 32, 0.25);
+        border-color: var(--gold-accent);
+    }
+</style>
+
+<div class="row g-5">
+    <div class="col-md-5 col-lg-4 order-md-last fade-in" style="animation-delay: 0.2s;">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span style="color: var(--gold-accent);">Тапсырыс</span>
+            <span class="badge bg-primary rounded-pill">1</span>
+        </h4>
+        <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+                <div>
+                    <h6 class="my-0">{{ course.title }}</h6>
+                    <small class="text-muted">Курс</small>
+                </div>
+                <span class="text-muted">{{ course.price }} ₸</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Барлығы (KZT)</span>
+                <strong>{{ course.price }} ₸</strong>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-7 col-lg-8 fade-in">
+        <h4 class="mb-3">Төлем әдісін таңдаңыз</h4>
+        <form method="POST" id="payment-form">
+            {% csrf_token %}
+
+            <div class="payment-method-box" data-method="card">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="card" checked>
+                    <label class="form-check-label" for="creditCard">
+                        <strong>Банк картасы</strong>
+                    </label>
+                </div>
+            </div>
+
+            <div class="payment-method-box" data-method="kaspi">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="kaspiQR" value="kaspi">
+                    <label class="form-check-label" for="kaspiQR">
+                        <strong>Kaspi QR</strong>
+                    </label>
+                </div>
+            </div>
+
+            <div id="card-details" class="fade-in">
+                <h5 class="my-4">Карта деректері</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="cc-name" class="form-label">Карта иесінің аты-жөні</label>
+                        <input type="text" class="form-control" id="cc-name" placeholder="AZAMAT AZAMATOV">
+                    </div>
+                    <div class="col-12">
+                        <label for="cc-number" class="form-label">Карта номері</label>
+                        <input type="text" class="form-control" id="cc-number" placeholder="xxxx-xxxx-xxxx-xxxx">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cc-expiration" class="form-label">Мерзімі</label>
+                        <input type="text" class="form-control" id="cc-expiration" placeholder="MM/YY">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cc-cvv" class="form-label">CVV</label>
+                        <input type="text" class="form-control" id="cc-cvv" placeholder="xxx">
+                    </div>
+                </div>
+            </div>
+
+            <div id="kaspi-qr-code" class="fade-in">
+                <p class="lead">Төлеу үшін QR-кодты сканерлеңіз:</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=kaspi" alt="Kaspi QR Code">
+                <p class="mt-2"><small>Бұл тесттік QR-код.</small></p>
+            </div>
+
+            <hr class="my-4">
+
+            <button class="w-100 btn btn-primary btn-lg" type="submit">Төлеу: {{ course.price }} ₸</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('.payment-method-box');
+    const cardDetails = document.getElementById('card-details');
+    const kaspiQRCode = document.getElementById('kaspi-qr-code');
+
+    function updatePaymentView() {
+        const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+        paymentMethods.forEach(box => {
+            if (box.dataset.method === selectedMethod) {
+                box.classList.add('selected');
+            } else {
+                box.classList.remove('selected');
+            }
+        });
+
+        if (selectedMethod === 'card') {
+            cardDetails.style.display = 'block';
+            kaspiQRCode.style.display = 'none';
+            cardDetails.classList.add('fade-in');
+            kaspiQRCode.classList.remove('fade-in');
+        } else if (selectedMethod === 'kaspi') {
+            cardDetails.style.display = 'none';
+            kaspiQRCode.style.display = 'block';
+            cardDetails.classList.remove('fade-in');
+            kaspiQRCode.classList.add('fade-in');
+        }
+    }
+
+    paymentMethods.forEach(box => {
+        box.addEventListener('click', function() {
+            this.querySelector('input[type="radio"]').checked = true;
+            updatePaymentView();
+        });
+    });
+
+    // Initial view setup
+    updatePaymentView();
+
+    // Cleave.js formatting
+    new Cleave('#cc-number', {
+        creditCard: true
+    });
+
+    new Cleave('#cc-expiration', {
+        date: true,
+        datePattern: ['m', 'y']
+    });
+
+    new Cleave('#cc-cvv', {
+        numericOnly: true,
+        blocks: [3]
+    });
+});
+</script>
+{% endblock %}
